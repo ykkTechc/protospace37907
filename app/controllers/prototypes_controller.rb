@@ -1,6 +1,7 @@
 class PrototypesController < ApplicationController
    before_action :set_prototype, only: [:edit, :show]
-   before_action :authenticate_user!
+   before_action :authenticate_user!, except:[:index, :show]
+   before_action :move_to_index, except: [:index, :show]
    def index
      @prototypes = Prototype.includes(:user)
    end
@@ -24,15 +25,13 @@ class PrototypesController < ApplicationController
    end
 
    def edit
-     unless user_signed_in?
-      redirect_to action: :index
-     end
+     @prototype = Prototype.find(params[:id])
    end
 
    def update
-     prototype = Prototype.find(params[:id])
-     if prototype.update(prototype_params)
-       redirect_to edit_prototype_path
+     @prototype = Prototype.find(params[:id])
+     if @prototype.update(prototype_params)
+       redirect_to prototype_path(@prototype)
      else
        render :edit
     end
@@ -54,4 +53,9 @@ class PrototypesController < ApplicationController
      @prototype = Prototype.find(params[:id])
    end
 
+   def move_to_index
+    unless user_signed_in?
+      redirect_to action: :index
+    end
+  end
 end
